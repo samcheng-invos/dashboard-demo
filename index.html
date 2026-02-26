@@ -3,12 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>泡麵市場分析 Dashboard | invosData</title>
+<title>洗衣精市場分析 Dashboard | invosData</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans TC', 'Segoe UI', 'Microsoft JhengHei', sans-serif; background: #F5F6F8; color: #333; }
-.header { background: linear-gradient(135deg, #091429 0%, #1a2642 100%); padding: 28px 32px; border-radius: 0 0 20px 20px; margin-bottom: 24px; }
+
+/* ── Header ── */
+.header { background: linear-gradient(135deg, #091429 0%, #1a2642 100%); padding: 28px 32px; border-radius: 0 0 20px 20px; margin-bottom: 24px; position: relative; z-index: 10; }
 .header-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
 .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #00DFA6, #B867FD); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; font-weight: 700; }
 .header-left { display: flex; align-items: center; gap: 14px; }
@@ -18,7 +21,144 @@ body { font-family: 'Noto Sans TC', 'Segoe UI', 'Microsoft JhengHei', sans-serif
 .tag { font-size: 11px; padding: 5px 12px; border-radius: 6px; font-weight: 600; }
 .tag-green { background: rgba(0,223,166,0.15); color: #00DFA6; }
 .tag-purple { background: rgba(184,103,253,0.15); color: #B867FD; }
-.container { max-width: 1120px; margin: 0 auto; padding: 0 24px 40px; }
+
+/* ── Container ── */
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px 40px; position: relative; }
+
+/* ── Blur Overlay ── */
+.blur-wrapper { position: relative; }
+.blur-wrapper.is-locked .blur-target { filter: blur(8px); pointer-events: none; user-select: none; }
+
+/* ── Gate Overlay (Lead Form) ── */
+.gate-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(9, 20, 41, 0.55);
+  backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 1; transition: opacity 0.5s ease;
+}
+.gate-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.gate-card {
+  background: #fff;
+  border-radius: 20px;
+  width: 480px; max-width: 94vw;
+  padding: 40px 36px 36px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08);
+  position: relative; overflow: hidden;
+  animation: gateIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes gateIn { from { opacity: 0; transform: translateY(30px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.gate-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #00DFA6 0%, #B867FD 100%);
+}
+.gate-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.gate-logo-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, #00DFA6, #B867FD); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; font-weight: 700; }
+.gate-logo-text { font-size: 14px; font-weight: 700; color: #091429; }
+.gate-title { font-size: 22px; font-weight: 900; color: #091429; margin-bottom: 6px; line-height: 1.35; }
+.gate-desc { font-size: 13px; color: #888; margin-bottom: 24px; line-height: 1.6; }
+.gate-desc strong { color: #333; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 11px; font-weight: 600; color: #666; margin-bottom: 4px; }
+.form-label .req { color: #E24A42; margin-left: 2px; }
+.form-input {
+  border: 1.5px solid #e0e0e0; border-radius: 8px;
+  padding: 9px 12px; font-size: 13px; font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+  background: #FAFBFC;
+}
+.form-input:focus { border-color: #00DFA6; box-shadow: 0 0 0 3px rgba(0,223,166,0.12); background: #fff; }
+.form-input.error { border-color: #E24A42; box-shadow: 0 0 0 3px rgba(226,74,66,0.1); }
+.form-input::placeholder { color: #ccc; }
+
+.gate-btn {
+  width: 100%; margin-top: 16px; padding: 13px;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #00DFA6, #00C896);
+  box-shadow: 0 4px 16px rgba(0,223,166,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.gate-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,223,166,0.35); }
+.gate-btn:active { transform: translateY(0); }
+.gate-privacy { font-size: 10px; color: #bbb; text-align: center; margin-top: 12px; line-height: 1.5; }
+
+.form-error-msg { font-size: 10px; color: #E24A42; margin-top: 3px; display: none; }
+.form-error-msg.show { display: block; }
+
+/* ── Premium Lock ── */
+.premium-lock {
+  position: relative; overflow: hidden; cursor: pointer;
+}
+.premium-lock .premium-content { filter: blur(7px); pointer-events: none; user-select: none; }
+.premium-badge-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(2px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 5; border-radius: 14px;
+  transition: background 0.2s;
+}
+.premium-lock:hover .premium-badge-overlay { background: rgba(255,255,255,0.55); }
+.premium-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #091429, #1a2642);
+  color: #fff; padding: 12px 24px; border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+  box-shadow: 0 8px 32px rgba(9,20,41,0.25);
+}
+.premium-badge svg { flex-shrink: 0; }
+.premium-sub { font-size: 11px; color: #666; margin-top: 8px; text-align: center; }
+
+/* ── Premium Modal ── */
+.premium-modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(9,20,41,0.5); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.premium-modal-overlay.active { opacity: 1; pointer-events: auto; }
+.premium-modal {
+  background: #fff; border-radius: 20px; padding: 36px 32px; width: 420px; max-width: 92vw;
+  text-align: center; position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+  transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.premium-modal-overlay.active .premium-modal { transform: scale(1); }
+.premium-modal::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #B867FD, #00DFA6);
+}
+.pm-icon { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #B867FD, #9A64CC); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.pm-title { font-size: 20px; font-weight: 800; color: #091429; margin-bottom: 8px; }
+.pm-desc { font-size: 13px; color: #777; line-height: 1.7; margin-bottom: 20px; }
+.pm-features { text-align: left; margin-bottom: 24px; }
+.pm-feat { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #555; margin-bottom: 8px; }
+.pm-feat svg { flex-shrink: 0; margin-top: 1px; }
+.pm-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; border: none; border-radius: 10px; cursor: pointer;
+  font-size: 14px; font-weight: 700; font-family: inherit; color: #fff;
+  background: linear-gradient(135deg, #B867FD, #9A64CC);
+  box-shadow: 0 4px 16px rgba(184,103,253,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.pm-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(184,103,253,0.4); }
+.pm-close {
+  position: absolute; top: 14px; right: 14px; width: 28px; height: 28px;
+  border: none; background: #f0f0f0; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #999;
+  font-size: 16px; transition: background 0.2s;
+}
+.pm-close:hover { background: #e0e0e0; color: #666; }
+
+/* ── Dashboard Cards (same as original) ── */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .kpi-card { background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #eee; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
 .kpi-label { font-size: 11px; color: #888; margin-bottom: 4px; }
@@ -40,109 +180,269 @@ td { padding: 7px 8px; border-bottom: 1px solid #f5f5f5; }
 .table-grid { display: flex; gap: 16px; flex-wrap: wrap; }
 .table-half { flex: 1 1 45%; min-width: 280px; }
 .footer { text-align: center; padding: 24px 0 8px; font-size: 11px; color: #bbb; }
+
+/* ── Unlocked Toast ── */
+.unlock-toast {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-80px);
+  background: #091429; color: #fff; padding: 14px 28px; border-radius: 12px;
+  font-size: 13px; font-weight: 600; z-index: 3000;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.unlock-toast.show { transform: translateX(-50%) translateY(0); }
+.unlock-toast svg { flex-shrink: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .gate-card { padding: 28px 20px 24px; }
+  .header-inner { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
+<!-- ═══════ LEAD CAPTURE GATE ═══════ -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <div class="gate-logo-icon">i</div>
+      <div class="gate-logo-text">invosData</div>
+    </div>
+    <div class="gate-title">解鎖完整市場數據報告</div>
+    <div class="gate-desc">
+      本報告涵蓋 <strong>50 億+</strong> 筆實購數據分析，填寫以下資訊即可免費閱覽完整洗衣精市場分析 Dashboard。
+    </div>
+    <div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">姓名 <span class="req">*</span></label>
+          <input class="form-input" id="fName" type="text" placeholder="王小明" required>
+          <div class="form-error-msg" id="errName">請輸入姓名</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">公司名稱 <span class="req">*</span></label>
+          <input class="form-input" id="fCompany" type="text" placeholder="台灣日化股份有限公司" required>
+          <div class="form-error-msg" id="errCompany">請輸入公司名稱</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">統一編號 <span class="req">*</span></label>
+          <input class="form-input" id="fTaxId" type="text" placeholder="12345678" maxlength="8" required>
+          <div class="form-error-msg" id="errTaxId">請輸入 8 碼統一編號</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">部門</label>
+          <input class="form-input" id="fDept" type="text" placeholder="行銷部">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">職稱</label>
+          <input class="form-input" id="fTitle" type="text" placeholder="品牌經理">
+        </div>
+        <div class="form-group">
+          <label class="form-label">聯繫電話</label>
+          <input class="form-input" id="fPhone" type="tel" placeholder="0912-345-678">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">公司 Email <span class="req">*</span></label>
+          <input class="form-input" id="fEmail" type="email" placeholder="name@company.com" required>
+          <div class="form-error-msg" id="errEmail">請輸入有效的公司 Email</div>
+        </div>
+      </div>
+      <button class="gate-btn" id="gateSubmit">立即解鎖報告 →</button>
+    </div>
+    <div class="gate-privacy">提交即表示您同意 invosData 依 <u>隱私權政策</u> 處理您的個人資料。<br>我們不會將您的資料分享給第三方。</div>
+  </div>
+</div>
+
+<!-- ═══════ PREMIUM MODAL ═══════ -->
+<div class="premium-modal-overlay" id="premiumModal">
+  <div class="premium-modal">
+    <button class="pm-close" id="pmClose">✕</button>
+    <div class="pm-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <div class="pm-title">升級解鎖進階分析</div>
+    <div class="pm-desc">此區域包含進階市場洞察，需聯繫我們的業務團隊為您開通。</div>
+    <div class="pm-features">
+      <div class="pm-feat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00DFA6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>各品牌通路銷售金額＆市佔趨勢明細</span>
+      </div>
+      <div class="pm-feat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00DFA6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>消費者購買頻次、回購率與客單價分析</span>
+      </div>
+      <div class="pm-feat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00DFA6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>競品交叉比對與消費者遷移路徑</span>
+      </div>
+      <div class="pm-feat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00DFA6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>客製化品類報告 & 專屬顧問諮詢</span>
+      </div>
+    </div>
+    <button class="pm-btn" onclick="window.open('mailto:sales@invosdata.com?subject=進階分析洽詢','_blank')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      聯繫業務團隊
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ UNLOCK TOAST ═══════ -->
+<div class="unlock-toast" id="unlockToast">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00DFA6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  歡迎！Dashboard 已解鎖
+</div>
+
+<!-- ═══════ DASHBOARD ═══════ -->
 <div class="header">
   <div class="header-inner">
     <div class="header-left">
       <div class="logo">i</div>
       <div>
-        <h1>泡麵市場分析 Dashboard</h1>
+        <h1>洗衣精市場分析 Dashboard</h1>
         <p>invosData 實購數據驗證平台 | 2024.01 – 2025.06</p>
       </div>
     </div>
     <div class="tags">
-      <span class="tag tag-green">品類：泡麵</span>
+      <span class="tag tag-green">品類：洗衣精</span>
       <span class="tag tag-purple">焦點：市場龍頭</span>
     </div>
   </div>
 </div>
 
 <div class="container">
-  <div class="kpi-grid">
-    <div class="kpi-card" style="border-left:4px solid #00DFA6">
-      <div class="kpi-label">月平均銷售額</div>
-      <div class="kpi-value">1,520萬</div>
-      <div class="kpi-sub" style="color:#00DFA6">近12個月</div>
+  <div class="blur-wrapper is-locked" id="blurWrapper">
+    <div class="blur-target">
+
+      <!-- KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card" style="border-left:4px solid #00DFA6">
+          <div class="kpi-label">月平均銷售額</div>
+          <div class="kpi-value">2,448萬</div>
+          <div class="kpi-sub" style="color:#00DFA6">近12個月</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #B867FD">
+          <div class="kpi-label">年成長率</div>
+          <div class="kpi-value">+8%</div>
+          <div class="kpi-sub" style="color:#B867FD">YoY 2025 vs 2024</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #00D0E3">
+          <div class="kpi-label">市場龍頭</div>
+          <div class="kpi-value">碧浪 ARIEL</div>
+          <div class="kpi-sub" style="color:#00D0E3">市佔 24%</div>
+        </div>
+        <div class="kpi-card" style="border-left:4px solid #8DECCA">
+          <div class="kpi-label">主要購買者</div>
+          <div class="kpi-value">女性 65%</div>
+          <div class="kpi-sub" style="color:#8DECCA">性別分布</div>
+        </div>
+      </div>
+
+      <!-- Sales Trend -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">整體市場銷售結構</h3>
+          <span class="card-tag" style="background:rgba(0,223,166,0.1);color:#00B386">趨勢</span>
+        </div>
+        <p class="card-sub">洗衣精市場 — 月銷售金額（萬）</p>
+        <div class="chart-wrap"><canvas id="chartSales"></canvas></div>
+      </div>
+
+      <!-- Channel & Gender (FREE) -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">通路下品牌分布</h3>
+            <span class="card-tag" style="background:rgba(184,103,253,0.1);color:#B867FD">通路</span>
+          </div>
+          <p class="card-sub">各通路品牌銷售佔比（%）</p>
+          <div class="chart-wrap"><canvas id="chartChannel"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">買家性別輪廓</h3>
+            <span class="card-tag" style="background:rgba(0,208,227,0.1);color:#00A8B8">性別</span>
+          </div>
+          <p class="card-sub">各品牌消費者性別人數佔比（%）</p>
+          <div class="chart-wrap"><canvas id="chartGender"></canvas></div>
+        </div>
+      </div>
+
+    </div><!-- /blur-target -->
+  </div><!-- /blur-wrapper -->
+
+  <!-- ═══════ PREMIUM LOCKED SECTIONS ═══════ -->
+
+  <!-- Age (Premium) -->
+  <div class="card premium-lock" onclick="openPremium()">
+    <div class="premium-content">
+      <div class="card-header">
+        <h3 class="card-title">買家年齡輪廓</h3>
+        <span class="card-tag" style="background:rgba(237,128,37,0.1);color:#ED8025">年齡</span>
+      </div>
+      <p class="card-sub">各品牌消費者年齡分布（%）</p>
+      <div class="chart-wrap"><canvas id="chartAge"></canvas></div>
     </div>
-    <div class="kpi-card" style="border-left:4px solid #B867FD">
-      <div class="kpi-label">年成長率</div>
-      <div class="kpi-value">+8%</div>
-      <div class="kpi-sub" style="color:#B867FD">YoY 2025 vs 2024</div>
-    </div>
-    <div class="kpi-card" style="border-left:4px solid #00D0E3">
-      <div class="kpi-label">市場龍頭</div>
-      <div class="kpi-value">統一肉燥麵</div>
-      <div class="kpi-sub" style="color:#00D0E3">市佔 34%</div>
-    </div>
-    <div class="kpi-card" style="border-left:4px solid #8DECCA">
-      <div class="kpi-label">主要購買者</div>
-      <div class="kpi-value">男性 52%</div>
-      <div class="kpi-sub" style="color:#8DECCA">性別分布</div>
+    <div class="premium-badge-overlay">
+      <div class="premium-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B867FD" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        聯繫我們解鎖進階分析
+      </div>
+      <div class="premium-sub">包含年齡分群、回購率、消費遷移等深度洞察</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">整體市場銷售結構</h3>
-      <span class="card-tag" style="background:rgba(0,223,166,0.1);color:#00B386">趨勢</span>
-    </div>
-    <p class="card-sub">泡麵市場 — 月銷售金額（萬）</p>
-    <div class="chart-wrap"><canvas id="chartSales"></canvas></div>
-  </div>
-
+  <!-- Co-purchase & Hot-sell (Premium) -->
   <div class="grid-2">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">通路下品牌分布</h3>
-        <span class="card-tag" style="background:rgba(184,103,253,0.1);color:#B867FD">通路</span>
+    <div class="card premium-lock" onclick="openPremium()">
+      <div class="premium-content">
+        <div class="card-header">
+          <h3 class="card-title">併購商品｜洗衣精</h3>
+          <span class="card-tag" style="background:rgba(141,236,202,0.15);color:#00B386">併購</span>
+        </div>
+        <p class="card-sub">前兩大通路消費者同時購買的熱門商品</p>
+        <div class="table-grid"><div class="table-half"><div class="ch-label">全聯/家樂福</div>
+<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>碧浪 ARIEL 超濃縮洗衣精 1.6kg</td><td class="amount">$299</td><td style="color:#666">碧浪 ARIEL</td></tr><tr><td>寶瓏 PERSIL 全效能洗衣凝露 1.0L</td><td class="amount">$369</td><td style="color:#666">寶瓏 PERSIL</td></tr><tr><td>一匙靈 制菌超濃縮洗衣精 1.9kg</td><td class="amount">$259</td><td style="color:#666">一匙靈</td></tr></tbody></table></div>
+<div class="table-half"><div class="ch-label">PChome/momo購物</div>
+<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>碧浪 ARIEL 4D洗衣膠囊 12入</td><td class="amount">$229</td><td style="color:#666">碧浪 ARIEL</td></tr><tr><td>橘子工坊 天然制菌洗衣精 1.8L</td><td class="amount">$289</td><td style="color:#666">橘子工坊</td></tr><tr><td>白蘭 4X酵素洗衣精 2.4kg</td><td class="amount">$249</td><td style="color:#666">白蘭</td></tr></tbody></table></div></div>
       </div>
-      <p class="card-sub">各通路品牌銷售佔比（%）</p>
-      <div class="chart-wrap"><canvas id="chartChannel"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">買家性別輪廓</h3>
-        <span class="card-tag" style="background:rgba(0,208,227,0.1);color:#00A8B8">性別</span>
+      <div class="premium-badge-overlay">
+        <div class="premium-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B867FD" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          進階分析
+        </div>
+        <div class="premium-sub">聯繫業務解鎖</div>
       </div>
-      <p class="card-sub">各品牌消費者性別人數佔比（%）</p>
-      <div class="chart-wrap"><canvas id="chartGender"></canvas></div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">買家年齡輪廓</h3>
-      <span class="card-tag" style="background:rgba(237,128,37,0.1);color:#ED8025">年齡</span>
-    </div>
-    <p class="card-sub">各品牌消費者年齡分布（%）</p>
-    <div class="chart-wrap"><canvas id="chartAge"></canvas></div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">併購商品｜泡麵</h3>
-        <span class="card-tag" style="background:rgba(141,236,202,0.15);color:#00B386">併購</span>
+    <div class="card premium-lock" onclick="openPremium()">
+      <div class="premium-content">
+        <div class="card-header">
+          <h3 class="card-title">熱銷商品｜洗衣精</h3>
+          <span class="card-tag" style="background:rgba(238,113,110,0.12);color:#E24A42">熱銷</span>
+        </div>
+        <p class="card-sub">前兩大通路最熱銷的洗衣精商品排名</p>
+        <div class="table-grid"><div class="table-half"><div class="ch-label">全聯/家樂福</div>
+<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>碧浪 ARIEL 超濃縮洗衣精 補充包 1.6kg</td><td class="amount">$259</td><td style="color:#666">碧浪 ARIEL</td></tr><tr><td>一匙靈 亮彩洗衣精 補充包 1.5kg</td><td class="amount">$199</td><td style="color:#666">一匙靈</td></tr><tr><td>南僑 水晶肥皂洗衣精 2.4kg</td><td class="amount">$279</td><td style="color:#666">南僑</td></tr></tbody></table></div>
+<div class="table-half"><div class="ch-label">PChome/momo購物</div>
+<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>寶瓏 PERSIL 4in1洗衣膠囊 36入</td><td class="amount">$599</td><td style="color:#666">寶瓏 PERSIL</td></tr><tr><td>碧浪 ARIEL 4D洗衣膠囊 31入</td><td class="amount">$469</td><td style="color:#666">碧浪 ARIEL</td></tr><tr><td>白鴿 防蟎洗衣精 3.5kg</td><td class="amount">$329</td><td style="color:#666">白鴿</td></tr></tbody></table></div></div>
       </div>
-      <p class="card-sub">前兩大通路消費者同時購買的熱門商品</p>
-      <div class="table-grid"><div class="table-half"><div class="ch-label">7-11/全家</div>
-<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>統一肉燥麵 85g</td><td class="amount">$15</td><td style="color:#666">統一</td></tr><tr><td>來一客 鮮蝦魚板 65g</td><td class="amount">$25</td><td style="color:#666">來一客</td></tr><tr><td>味味A 排骨雞湯麵 90g</td><td class="amount">$18</td><td style="color:#666">味味A</td></tr></tbody></table></div>
-<div class="table-half"><div class="ch-label">全聯/家樂福</div>
-<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>統一肉燥麵 5入裝</td><td class="amount">$60</td><td style="color:#666">統一</td></tr><tr><td>滿漢大餐 蔥燒牛肉麵 2入</td><td class="amount">$89</td><td style="color:#666">滿漢大餐</td></tr><tr><td>台酒花雕雞麵 3入</td><td class="amount">$135</td><td style="color:#666">台酒</td></tr></tbody></table></div></div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">熱銷商品｜泡麵</h3>
-        <span class="card-tag" style="background:rgba(238,113,110,0.12);color:#E24A42">熱銷</span>
+      <div class="premium-badge-overlay">
+        <div class="premium-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B867FD" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          進階分析
+        </div>
+        <div class="premium-sub">聯繫業務解鎖</div>
       </div>
-      <p class="card-sub">前兩大通路最熱銷的泡麵商品排名</p>
-      <div class="table-grid"><div class="table-half"><div class="ch-label">7-11/全家</div>
-<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>統一肉燥麵 85g</td><td class="amount">$15</td><td style="color:#666">統一</td></tr><tr><td>來一客 鮮蝦魚板杯</td><td class="amount">$25</td><td style="color:#666">來一客</td></tr><tr><td>科學麵 40g</td><td class="amount">$10</td><td style="color:#666">科學麵</td></tr></tbody></table></div>
-<div class="table-half"><div class="ch-label">全聯/家樂福</div>
-<table><thead><tr><th>品名</th><th style="text-align:right;width:70px">金額</th><th style="width:100px">品牌</th></tr></thead><tbody><tr><td>統一肉燥麵 5入裝</td><td class="amount">$60</td><td style="color:#666">統一</td></tr><tr><td>維力炸醬麵 5入裝</td><td class="amount">$55</td><td style="color:#666">維力</td></tr><tr><td>滿漢大餐 蔥燒牛肉 2入</td><td class="amount">$89</td><td style="color:#666">滿漢大餐</td></tr></tbody></table></div></div>
     </div>
   </div>
 
@@ -152,17 +452,85 @@ td { padding: 7px 8px; border-bottom: 1px solid #f5f5f5; }
 <script>
 (function() {
 "use strict";
+
+/* ── GATE LOGIC ── */
+var overlay = document.getElementById("gateOverlay");
+var blurWrap = document.getElementById("blurWrapper");
+var toast = document.getElementById("unlockToast");
+
+document.getElementById("gateSubmit").addEventListener("click", function() {
+  var valid = true;
+  var fields = [
+    { id: "fName", err: "errName", test: function(v){ return v.trim().length > 0; } },
+    { id: "fCompany", err: "errCompany", test: function(v){ return v.trim().length > 0; } },
+    { id: "fTaxId", err: "errTaxId", test: function(v){ return /^\d{8}$/.test(v.trim()); } },
+    { id: "fEmail", err: "errEmail", test: function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); } }
+  ];
+  fields.forEach(function(f) {
+    var inp = document.getElementById(f.id);
+    var err = document.getElementById(f.err);
+    if (!f.test(inp.value)) {
+      inp.classList.add("error");
+      err.classList.add("show");
+      valid = false;
+    } else {
+      inp.classList.remove("error");
+      err.classList.remove("show");
+    }
+  });
+  if (!valid) return;
+
+  // Collect lead data (in real app → POST to backend)
+  var lead = {
+    name: document.getElementById("fName").value.trim(),
+    company: document.getElementById("fCompany").value.trim(),
+    taxId: document.getElementById("fTaxId").value.trim(),
+    dept: document.getElementById("fDept").value.trim(),
+    title: document.getElementById("fTitle").value.trim(),
+    phone: document.getElementById("fPhone").value.trim(),
+    email: document.getElementById("fEmail").value.trim(),
+    timestamp: new Date().toISOString()
+  };
+  console.log("📋 Lead captured:", lead);
+
+  // Unlock dashboard
+  overlay.classList.add("hidden");
+  blurWrap.classList.remove("is-locked");
+  toast.classList.add("show");
+  setTimeout(function() { toast.classList.remove("show"); }, 3000);
+  setTimeout(function() { overlay.style.display = "none"; }, 600);
+});
+
+// Enter key submits form
+document.querySelectorAll('.form-input').forEach(function(inp) {
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('gateSubmit').click();
+  });
+});
+
+/* ── PREMIUM MODAL ── */
+window.openPremium = function() {
+  document.getElementById("premiumModal").classList.add("active");
+};
+document.getElementById("pmClose").addEventListener("click", function() {
+  document.getElementById("premiumModal").classList.remove("active");
+});
+document.getElementById("premiumModal").addEventListener("click", function(e) {
+  if (e.target === this) this.classList.remove("active");
+});
+
+/* ── CHARTS ── */
 var PAL = ["#91DDF0","#7A9BE4","#7EC997","#B78ED8","#EE716E","#FA88C5","#F6AA5E","#C6D86A","#FFDD5E","#C8CCD0"];
-var brands = ["統一肉燥麵", "來一客鮮蝦魚板", "滿漢大餐蔥燒牛", "科學麵", "維力炸醬麵", "台酒花雕雞麵", "味味A排骨雞湯", "統一辣味蔥燒牛", "來一客辛辣香菇", "其他"];
-var channels = ["7-11/全家", "全聯/家樂福", "Shopee/momo購物", "Costco", "雜貨店"];
-var ageGroups = ["18-25", "26-35", "36-45", "46+"];
-var salesMonths = ["2024/01", "2024/02", "2024/03", "2024/04", "2024/05", "2024/06", "2025/01", "2025/02", "2025/03", "2025/04", "2025/05", "2025/06"];
-var salesVals = [1100, 1200, 1300, 1350, 1500, 1550, 1400, 1450, 1650, 1800, 1900, 2050];
-var channelBrand = [[34, 12, 10, 8, 7, 6, 6, 5, 5, 7], [30, 14, 11, 9, 8, 7, 5, 5, 4, 7], [25, 13, 12, 10, 9, 8, 7, 5, 4, 7], [28, 11, 13, 7, 8, 9, 6, 6, 5, 7], [32, 10, 9, 12, 8, 6, 7, 5, 4, 7]];
-var genderM = [50, 48, 55, 58, 52, 46, 49, 53, 47, 50];
-var genderF = [50, 52, 45, 42, 48, 54, 51, 47, 53, 50];
-var ageVals = [[22, 30, 28, 20], [20, 28, 30, 22], [18, 26, 32, 24], [30, 32, 24, 14], [25, 30, 26, 19], [16, 24, 30, 30], [20, 28, 28, 24], [22, 30, 28, 20], [18, 26, 30, 26], [21, 28, 28, 23]];
-var ageColors = ["#63C3F1", "#3A5EC8", "#38AA7C", "#9A64CC"];
+var brands = ["碧浪 ARIEL", "寶瓏 PERSIL", "一匙靈", "南僑", "白蘭", "橘子工坊", "白鴿", "熊寶貝", "妙管家", "其他"];
+var channels = ["全聯/家樂福", "PChome/momo購物", "7-11/全家", "Costco"];
+var ageGroups = ["20-29", "30-39", "40-49", "50+"];
+var salesMonths = ["2024/01","2024/02","2024/03","2024/04","2024/05","2024/06","2025/01","2025/02","2025/03","2025/04","2025/05","2025/06"];
+var salesVals = [2100,2250,2180,2300,2420,2500,2350,2400,2550,2680,2750,2900];
+var channelBrand = [[24,18,15,12,10,7,5,4,3,2],[20,19,16,11,9,8,6,5,3,3],[22,17,14,13,10,8,6,4,3,3],[26,20,14,10,8,7,5,4,3,3]];
+var genderM = [33,34,35,36,37,33,34,35,36,37];
+var genderF = [67,66,65,64,63,67,66,65,64,63];
+var ageVals = [[15,30,32,23],[14,28,34,24],[16,32,30,22],[18,28,30,24],[13,27,33,27],[17,31,29,23],[15,29,31,25],[14,27,33,26],[16,30,30,24],[15,28,32,25]];
+var ageColors = ["#63C3F1","#3A5EC8","#38AA7C","#9A64CC"];
 
 Chart.defaults.font.family = "'Noto Sans TC','Segoe UI','Microsoft JhengHei',sans-serif";
 Chart.defaults.font.size = 11;
@@ -183,7 +551,7 @@ new Chart(document.getElementById("chartChannel"), {
 
 new Chart(document.getElementById("chartGender"), {
   type: "bar",
-  data: { labels: brands, datasets: [ { label: "男性", data: genderM, backgroundColor: "#7A9BE4", borderRadius: 2 }, { label: "女性", data: genderF, backgroundColor: "#FA88C5", borderRadius: 2 } ] },
+  data: { labels: brands, datasets: [{ label: "男性", data: genderM, backgroundColor: "#7A9BE4", borderRadius: 2 }, { label: "女性", data: genderF, backgroundColor: "#FA88C5", borderRadius: 2 }] },
   options: { indexAxis: "y", responsive: true, scales: { x: { stacked: true, max: 100, ticks: { callback: function(v){return v+"%";} }, grid: { color: "#f0f0f0" } }, y: { stacked: true, grid: { display: false } } }, plugins: { legend: { position: "bottom", labels: { font: { size: 10 }, boxWidth: 12 } }, tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + "：" + ctx.raw + "%"; } } } } }
 });
 
@@ -192,6 +560,7 @@ new Chart(document.getElementById("chartAge"), {
   data: { labels: brands, datasets: ageGroups.map(function(g, gi) { return { label: g, data: ageVals.map(function(v) { return v[gi]; }), backgroundColor: ageColors[gi], borderRadius: 2 }; }) },
   options: { indexAxis: "y", responsive: true, scales: { x: { stacked: true, max: 100, ticks: { callback: function(v){return v+"%";} }, grid: { color: "#f0f0f0" } }, y: { stacked: true, grid: { display: false } } }, plugins: { legend: { position: "bottom", labels: { font: { size: 10 }, boxWidth: 12 } }, tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + "：" + ctx.raw + "%"; } } } } }
 });
+
 })();
 </script>
 </body>
